@@ -553,21 +553,38 @@ function startMatrix(canvas: HTMLCanvasElement, onDone: () => void) {
   canvas.height = window.innerHeight;
   const cols = Math.floor(canvas.width / 16);
   const drops = Array(cols).fill(1);
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&<>";
   let frame = 0;
+  const totalFrames = 80; // ~2.6s at 33ms
+
+  // Initial dark fill so chars are visible immediately
+  ctx.fillStyle = "rgba(0,0,0,0.92)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
   const iv = setInterval(() => {
-    ctx.fillStyle = "rgba(0,0,0,0.05)";
+    // Fade trail
+    ctx.fillStyle = "rgba(0,0,0,0.08)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#00ff41";
+
     ctx.font = "14px monospace";
     drops.forEach((y, i) => {
       const ch = chars[Math.floor(Math.random() * chars.length)];
+      // Leading char is bright white, rest green
+      ctx.fillStyle = y === 1 ? "#ffffff" : "#00ff41";
       ctx.fillText(ch, i * 16, y * 16);
       if (y * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0;
       drops[i]++;
     });
+
     frame++;
-    if (frame > 120) {
+
+    // Fade out in last 20 frames
+    if (frame > totalFrames - 20) {
+      ctx.fillStyle = `rgba(0,0,0,${0.08 + (frame - (totalFrames - 20)) * 0.04})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    if (frame >= totalFrames) {
       clearInterval(iv);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       onDone();
@@ -961,7 +978,6 @@ export default function Home() {
       <canvas
         ref={canvasRef}
         id="matrix-canvas"
-        className={matrixActive ? "block" : "hidden"}
         style={
           matrixActive
             ? {
@@ -971,8 +987,11 @@ export default function Home() {
                 width: "100vw",
                 height: "100vh",
                 zIndex: 40,
+                display: "block",
               }
-            : {}
+            : {
+                display: "none",
+              }
         }
       />
 
