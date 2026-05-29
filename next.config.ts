@@ -1,7 +1,3 @@
-const nextConfig = {
-  output: "export",
-  basePath: "/intro",
-  images: { unoptimized: true },
-};
+const nextConfig = {};
 
 export default nextConfig;
