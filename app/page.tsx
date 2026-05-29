@@ -728,7 +728,7 @@ export default function Home() {
   const [clearing, setClearing] = useState(false);
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const [soundOn, setSoundOn] = useState(true);
+  const [soundOn, setSoundOn] = useState(false);
   const [matrixActive, setMatrixActive] = useState(false);
   const [activeCmd, setActiveCmd] = useState("");
   const [isKonami, setIsKonami] = useState(false);
