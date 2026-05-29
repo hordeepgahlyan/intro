@@ -801,17 +801,19 @@ export default function Home() {
           "",
         ]);
         setTimeout(() => {
-          if (canvasRef.current) {
-            startMatrix(canvasRef.current, () => {
-              setMatrixActive(false);
-              setHistory((h) => [
-                ...h,
-                "  access granted. you were always in.",
-                "",
-              ]);
-            });
-          }
-        }, 50);
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          startMatrix(canvas, () => {
+            setMatrixActive(false);
+            setHistory((h) => [
+              ...h,
+              "  access granted. you were always in.",
+              "",
+            ]);
+          });
+        }, 100);
         return;
       }
 
@@ -978,21 +980,18 @@ export default function Home() {
       <canvas
         ref={canvasRef}
         id="matrix-canvas"
-        style={
-          matrixActive
-            ? {
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100vh",
-                zIndex: 40,
-                display: "block",
-              }
-            : {
-                display: "none",
-              }
-        }
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          display: "block",
+          zIndex: matrixActive ? 40 : -1,
+          opacity: matrixActive ? 1 : 0,
+          pointerEvents: matrixActive ? "auto" : "none",
+          transition: "opacity 0.3s ease",
+        }}
       />
 
       {stage === "boot" && <BootSequence onDone={() => setStage("splash")} />}
