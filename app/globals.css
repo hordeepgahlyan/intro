@@ -1,26 +1,245 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --green: #00ff41;
+  --green-dim: #00cc33;
+  --green-dark: #003300;
+  --bg: #0a0a0a;
+  --glow: 0 0 8px #00ff41, 0 0 20px #00ff4144;
+  --crt-color: #00ff41;
+  --crt-color-dim: #00cc33;
+  --crt-color-dark: #003300;
+  --crt-glow:
+    0 0 8px var(--crt-color),
+    0 0 20px color-mix(in srgb, var(--crt-color) 27%, transparent);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+[data-theme="amber"] {
+  --crt-color: #ffb000;
+  --crt-color-dim: #cc8800;
+  --crt-color-dark: #332200;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+[data-theme="white"] {
+  --crt-color: #e0e0e0;
+  --crt-color-dim: #aaaaaa;
+  --crt-color-dark: #333333;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--crt-color);
+  font-family: "Courier New", Courier, monospace;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 0.3s;
+}
+body.no-crt::after {
+  opacity: 0;
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  12% {
+    opacity: 0.3;
+  }
+  14% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0.6;
+  }
+  74% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
   }
 }
+.crt-flicker {
+  animation: flicker 0.6s ease forwards;
+}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+.cursor::after {
+  content: "█";
+  animation: blink 1s step-end infinite;
+  color: var(--crt-color);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.line-in {
+  animation: fadeIn 0.2s ease forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.clearing {
+  animation: fadeOut 0.2s ease forwards;
+}
+
+@keyframes konami {
+  0% {
+    filter: invert(0) hue-rotate(0deg);
+  }
+  20% {
+    filter: invert(1) hue-rotate(90deg);
+  }
+  40% {
+    filter: invert(0) hue-rotate(180deg);
+  }
+  60% {
+    filter: invert(1) hue-rotate(270deg);
+  }
+  80% {
+    filter: invert(0) hue-rotate(360deg);
+  }
+  100% {
+    filter: invert(0) hue-rotate(0deg);
+  }
+}
+.konami-glitch {
+  animation: konami 1.5s ease forwards;
+}
+
+/* Modal */
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.modal-in {
+  animation: modalIn 0.15s ease forwards;
+}
+
+/* Terminal exit */
+@keyframes terminalExit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.01);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+.terminal-exit {
+  animation: terminalExit 0.5s ease forwards;
+}
+
+/* Minimize */
+@keyframes minimizeAnim {
+  from {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scaleY(0.05) translateY(60px);
+  }
+}
+@keyframes restoreAnim {
+  from {
+    opacity: 0;
+    transform: scaleY(0.05) translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+.minimizing {
+  animation: minimizeAnim 0.25s ease forwards;
+}
+.restoring {
+  animation: restoreAnim 0.25s ease forwards;
+}
+
+/* Maximize transition */
+.terminal-window {
+  transition:
+    max-width 0.3s ease,
+    margin 0.3s ease;
+}
+
+#matrix-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.glow {
+  text-shadow: var(--crt-glow);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--crt-color-dark);
 }
