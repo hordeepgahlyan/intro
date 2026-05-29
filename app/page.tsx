@@ -551,39 +551,48 @@ function startMatrix(canvas: HTMLCanvasElement, onDone: () => void) {
   const ctx = canvas.getContext("2d")!;
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+
   const cols = Math.floor(canvas.width / 16);
-  const drops = Array(cols).fill(1);
+  const drops: number[] = Array.from({ length: cols }, () =>
+    Math.floor(Math.random() * -50),
+  );
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&<>";
   let frame = 0;
-  const totalFrames = 80; // ~2.6s at 33ms
-
-  // Initial dark fill so chars are visible immediately
-  ctx.fillStyle = "rgba(0,0,0,0.92)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const totalFrames = 90;
 
   const iv = setInterval(() => {
-    // Fade trail
-    ctx.fillStyle = "rgba(0,0,0,0.08)";
+    // Dark semi-transparent background for trail
+    ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = "14px monospace";
-    drops.forEach((y, i) => {
+    ctx.font = "bold 15px monospace";
+
+    for (let i = 0; i < drops.length; i++) {
+      const y = drops[i];
+      if (y < 0) {
+        drops[i]++;
+        continue;
+      }
       const ch = chars[Math.floor(Math.random() * chars.length)];
-      // Leading char is bright white, rest green
-      ctx.fillStyle = y === 1 ? "#ffffff" : "#00ff41";
+      // Head of column is white, rest bright green
+      ctx.fillStyle = "#ffffff";
       ctx.fillText(ch, i * 16, y * 16);
-      if (y * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
-    });
 
-    frame++;
+      // Draw previous char in green
+      if (y > 1) {
+        ctx.fillStyle = "#00ff41";
+        const prevCh = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(prevCh, i * 16, (y - 1) * 16);
+      }
 
-    // Fade out in last 20 frames
-    if (frame > totalFrames - 20) {
-      ctx.fillStyle = `rgba(0,0,0,${0.08 + (frame - (totalFrames - 20)) * 0.04})`;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (y * 16 > canvas.height && Math.random() > 0.97) {
+        drops[i] = 0;
+      } else {
+        drops[i]++;
+      }
     }
 
+    frame++;
     if (frame >= totalFrames) {
       clearInterval(iv);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
