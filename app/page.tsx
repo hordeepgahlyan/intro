@@ -47,6 +47,29 @@ const JOKES = [
   "why don't IoT devices tell jokes? too many connectivity issues.",
 ];
 
+const QUOTES = [
+  "the best way to predict the future is to build it. — alan kay",
+  "first, solve the problem. then, write the code. — john johnson",
+  "simplicity is the soul of efficiency. — austin freeman",
+  "code is like humor. when you have to explain it, it's bad. — cory house",
+  "the only way to go fast is to go well. — robert martin",
+  "before software can be reusable it first has to be usable. — ralph johnson",
+  "make it work, make it right, make it fast. — kent beck",
+  "talk is cheap. show me the code. — linus torvalds",
+  "any fool can write code that a computer can understand. good programmers write code that humans can understand. — martin fowler",
+  "the most disastrous thing you can ever learn is your first programming language. — alan kay",
+  "it's not a bug — it's an undocumented feature. — unknown",
+  "perfection is achieved not when there is nothing more to add, but when there is nothing left to take away. — antoine de saint-exupéry",
+  "the function of good software is to make the complex appear simple. — grady booch",
+  "always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live. — john woods",
+  "software is a great combination of artistry and engineering. — bill gates",
+  "the computer was born to solve problems that did not exist before. — bill gates",
+  "an idiot admires complexity, a genius admires simplicity. — terry davis",
+  "one of my most productive days was throwing away 1000 lines of code. — ken thompson",
+  "the most important property of a program is whether it accomplishes the intention of its user. — c.a.r. hoare",
+  "curiosity is the engine of achievement. — ken robinson",
+];
+
 const NOT_FOUND_RESPONSES = [
   (c: string) => `command not found: '${c}' — skill issue.`,
   (c: string) => `'${c}': not a command. not a suggestion either.`,
@@ -705,7 +728,7 @@ export default function Home() {
   const [clearing, setClearing] = useState(false);
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const [soundOn, setSoundOn] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
   const [matrixActive, setMatrixActive] = useState(false);
   const [activeCmd, setActiveCmd] = useState("");
   const [isKonami, setIsKonami] = useState(false);
@@ -832,6 +855,12 @@ export default function Home() {
         return;
       }
 
+      if (c === "quote") {
+        const line = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+        runCommand(cmd, [`  "${line}"`, ""]);
+        return;
+      }
+
       if (c === "date") {
         const now = new Date().toLocaleString("en-IN", {
           timeZone: "Asia/Kolkata",
@@ -933,6 +962,7 @@ export default function Home() {
       const all = [
         ...Object.keys(COMMANDS).filter((k) => k !== "uptime"),
         "joke",
+        "quote",
         "date",
         "exit",
         "uptime",
