@@ -203,6 +203,7 @@ export default function Terminal({
             borderColor: "var(--crt-color)",
             boxShadow:
               "0 0 30px color-mix(in srgb, var(--crt-color) 20%, transparent)",
+            WebkitTapHighlightColor: "transparent",
           }}
           onClick={onTerminalClick}
         >
@@ -284,6 +285,13 @@ export default function Terminal({
             className={`p-6 text-sm leading-7 relative overflow-hidden ${maximized ? "min-h-[85vh]" : "min-h-[70vh]"}`}
           >
             {children}
+            {/* Mobile keyboard hint */}
+            <p
+              className="sm:hidden text-center font-mono text-[10px] mt-4 animate-pulse"
+              style={{ color: "var(--crt-color-dark)" }}
+            >
+              [ tap here to type ]
+            </p>
           </div>
 
           {/* Bottom bar — shortcuts + sound */}
