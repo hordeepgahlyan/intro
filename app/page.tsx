@@ -7,7 +7,7 @@ import AsciiSplash from "@/components/AsciiSplash";
 const INFO_LINES = [
   { label: "user", value: "hordeep" },
   { label: "role", value: "student · builder · explorer" },
-  { label: "based", value: "indore, india" },
+  { label: "based", value: "India" },
   { label: "status", value: "learning everything" },
   { label: "hint", value: "5 secrets hidden here" },
 ];
@@ -549,8 +549,8 @@ const KONAMI = [
 
 function startMatrix(canvas: HTMLCanvasElement, onDone: () => void) {
   const ctx = canvas.getContext("2d")!;
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   const cols = Math.floor(canvas.width / 16);
   const drops = Array(cols).fill(1);
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -593,12 +593,8 @@ function playTick() {
 
 function getVisitCount(): number {
   try {
-    const visited = localStorage.getItem("portfolio_visited");
     const count = parseInt(localStorage.getItem("portfolio_visits") || "0", 10);
-    const next = visited ? count : count + 1;
-    localStorage.setItem("portfolio_visited", "1");
-    localStorage.setItem("portfolio_visits", String(next));
-    return next;
+    return count || 1;
   } catch {
     return 1;
   }
@@ -687,7 +683,7 @@ export default function Home() {
   const [matrixActive, setMatrixActive] = useState(false);
   const [activeCmd, setActiveCmd] = useState("");
   const [isKonami, setIsKonami] = useState(false);
-  const [visits] = useState<number>(() => getVisitCount());
+  const [visits, setVisits] = useState<number>(1);
   const [tabPressCount, setTabPressCount] = useState(0);
   const [lastTabInput, setLastTabInput] = useState("");
   const [terminated, setTerminated] = useState(false);
@@ -699,8 +695,11 @@ export default function Home() {
   const konamiRef = useRef<string[]>([]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [history]);
+    fetch("https://api.counterapi.dev/v1/hordeepgahlyan-portfolio/visits/up")
+      .then((r) => r.json())
+      .then((data) => setVisits(data.count ?? 1))
+      .catch(() => setVisits(1));
+  }, []);
 
   const focusInput = useCallback(() => {
     inputRef.current?.focus();
@@ -963,6 +962,18 @@ export default function Home() {
         ref={canvasRef}
         id="matrix-canvas"
         className={matrixActive ? "block" : "hidden"}
+        style={
+          matrixActive
+            ? {
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                zIndex: 40,
+              }
+            : {}
+        }
       />
 
       {stage === "boot" && <BootSequence onDone={() => setStage("splash")} />}
